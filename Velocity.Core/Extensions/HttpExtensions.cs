@@ -144,16 +144,29 @@ namespace Velocity.Core.Extensions
             {
                 Console.WriteLine(message);
 
+                if (message.StatusCode == HttpStatusCode.InternalServerError)
+                    throw new ServerErrorException(message.ReasonPhrase);
+
                 var contentString = await message.Content.ReadAsStringAsync();
 
                 Console.WriteLine(contentString);
 
-                var response = contentString.DeserializeOrDefault<HttpResponse<TModel>>()
-                         ?? new HttpResponse<TModel>();
+                var response = contentString.DeserializeOrDefault<HttpResponse<TModel>>();
 
-                Console.WriteLine(response);
+                if (response != null)
+                {
+                    response.StatusCode = message.StatusCode;
+                    return response;
+                }
 
-                return response;
+                var result = contentString.DeserializeOrDefault<TModel>();
+
+                return new HttpResponse<TModel>()
+                {
+                    Result = result,
+                    StatusCode = message.StatusCode,
+                    Message = message.ReasonPhrase
+                };
             }
 
             public static implicit operator Response<TModel>(HttpResponse<TModel> httpResponse)
