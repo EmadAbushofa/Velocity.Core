@@ -1,10 +1,8 @@
-﻿using JetBrains.Annotations;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Velocity.Core.Extensions
 {
-    [PublicAPI]
     public static class SerializationExtensions
     {
         public static string Serialize(this object obj, Format format = Format.CamelCase)
