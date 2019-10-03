@@ -159,13 +159,25 @@ namespace Velocity.Core.Extensions
                     return response;
                 }
 
+
                 var result = contentString.DeserializeOrDefault<TModel>();
+
+                if (result != null)
+                    return new HttpResponse<TModel>()
+                    {
+                        Result = result,
+                        StatusCode = message.StatusCode,
+                        Message = message.ReasonPhrase
+                    };
+
+
+                var errors = contentString.DeserializeOrDefault<Dictionary<string, List<string>>>();
 
                 return new HttpResponse<TModel>()
                 {
-                    Result = result,
                     StatusCode = message.StatusCode,
-                    Message = message.ReasonPhrase
+                    Message = message.ReasonPhrase,
+                    Errors = errors
                 };
             }
 
