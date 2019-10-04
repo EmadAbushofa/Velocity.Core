@@ -200,7 +200,7 @@ namespace Velocity.Core.Extensions
 
             public TModel Result { get; set; }
 
-            public bool IsNotEmptyResponse => Errors.Count > 0 || !string.IsNullOrWhiteSpace(Message) || Result != default;
+            public bool IsNotEmptyResponse => Errors?.Count > 0 || !string.IsNullOrWhiteSpace(Message) || Result != default;
 
             public HttpResponse<TOther> ToOtherModel<TOther>(Func<TModel, TOther> func)
             {
