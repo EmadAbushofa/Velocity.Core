@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,7 +11,7 @@ namespace Velocity.Core.Extensions
 {
     public static class HttpExtensions
     {
-        public static async Task<Response<T>> GetJsonAsync<T>(this HttpClient httpClient, string uri, object query = null)
+        public static async Task<HttpResponse<T>> GetJsonAsync<T>(this HttpClient httpClient, string uri, object query = null)
         {
             uri = query == null
                 ? uri
@@ -27,13 +26,13 @@ namespace Velocity.Core.Extensions
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Response.Fail(HttpStatusCode.ServiceUnavailable);
+                return HttpResponse.Fail(HttpStatusCode.ServiceUnavailable);
             }
 
-            return await HttpResponse<T>.GetResponseAsync(message);
+            return await GetResponseAsync<T>(message);
         }
 
-        public static async Task<Response<T>> PostJsonAsync<T>(this HttpClient httpClient, string uri, object obj)
+        public static async Task<HttpResponse<T>> PostJsonAsync<T>(this HttpClient httpClient, string uri, object obj)
         {
             var input = obj.Serialize();
 
@@ -46,13 +45,13 @@ namespace Velocity.Core.Extensions
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Response.Fail(HttpStatusCode.ServiceUnavailable);
+                return HttpResponse.Fail(HttpStatusCode.ServiceUnavailable);
             }
 
-            return await HttpResponse<T>.GetResponseAsync(message);
+            return await GetResponseAsync<T>(message);
         }
 
-        public static async Task<Response<T>> PutJsonAsync<T>(this HttpClient httpClient, string uri, object obj)
+        public static async Task<HttpResponse<T>> PutJsonAsync<T>(this HttpClient httpClient, string uri, object obj)
         {
             var input = obj.Serialize();
 
@@ -65,13 +64,13 @@ namespace Velocity.Core.Extensions
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Response.Fail(HttpStatusCode.ServiceUnavailable);
+                return HttpResponse.Fail(HttpStatusCode.ServiceUnavailable);
             }
 
-            return await HttpResponse<T>.GetResponseAsync(message);
+            return await GetResponseAsync<T>(message);
         }
 
-        public static async Task<Response> DeleteJsonAsync(this HttpClient httpClient, string uri)
+        public static async Task<HttpResponse> DeleteJsonAsync(this HttpClient httpClient, string uri)
         {
             HttpResponseMessage message;
 
@@ -82,13 +81,13 @@ namespace Velocity.Core.Extensions
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Response.Fail(HttpStatusCode.ServiceUnavailable);
+                return HttpResponse.Fail(HttpStatusCode.ServiceUnavailable);
             }
 
-            return (Response<object>)await HttpResponse<object>.GetResponseAsync(message);
+            return await GetResponseAsync<object>(message);
         }
 
-        public static async Task<Response<T>> PatchJsonAsync<T>(this HttpClient httpClient, string uri, object input = null)
+        public static async Task<HttpResponse<T>> PatchJsonAsync<T>(this HttpClient httpClient, string uri, object input = null)
         {
             HttpResponseMessage message;
 
@@ -104,10 +103,10 @@ namespace Velocity.Core.Extensions
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return Response.Fail(HttpStatusCode.ServiceUnavailable);
+                return HttpResponse.Fail(HttpStatusCode.ServiceUnavailable);
             }
 
-            return await HttpResponse<T>.GetResponseAsync(message);
+            return await GetResponseAsync<T>(message);
         }
 
 
@@ -138,80 +137,30 @@ namespace Velocity.Core.Extensions
         }
 
 
-        public class HttpResponse<TModel>
+        public static async Task<HttpResponse<T>> GetResponseAsync<T>(HttpResponseMessage message)
         {
-            public static async Task<HttpResponse<TModel>> GetResponseAsync(HttpResponseMessage message)
+            Console.WriteLine(message);
+
+            if (message.StatusCode == HttpStatusCode.InternalServerError)
+                throw new ServerErrorException(message.ReasonPhrase);
+
+            var contentString = await message.Content.ReadAsStringAsync();
+
+            Console.WriteLine(contentString);
+
+            var response = contentString.DeserializeOrDefault<HttpResponse<T>>();
+
+            if (response != null)
             {
-                Console.WriteLine(message);
-
-                if (message.StatusCode == HttpStatusCode.InternalServerError)
-                    throw new ServerErrorException(message.ReasonPhrase);
-
-                var contentString = await message.Content.ReadAsStringAsync();
-
-                Console.WriteLine(contentString);
-
-                var response = contentString.DeserializeOrDefault<HttpResponse<TModel>>();
-
-                if (response != null && response.IsNotEmptyResponse)
-                {
-                    response.StatusCode = message.StatusCode;
-                    return response;
-                }
-
-
-                var result = contentString.DeserializeOrDefault<TModel>();
-
-                if (result != null && response.IsNotEmptyResponse)
-                    return new HttpResponse<TModel>()
-                    {
-                        Result = result,
-                        StatusCode = message.StatusCode,
-                        Message = message.ReasonPhrase
-                    };
-
-
-                var errors = contentString.DeserializeOrDefault<Dictionary<string, List<string>>>();
-
-                return new HttpResponse<TModel>()
-                {
-                    StatusCode = message.StatusCode,
-                    Message = message.ReasonPhrase,
-                    Errors = errors
-                };
+                response.StatusCode = message.StatusCode;
+                return response;
             }
 
-            public static implicit operator Response<TModel>(HttpResponse<TModel> httpResponse)
+            return new HttpResponse<T>()
             {
-                if ((int)httpResponse.StatusCode >= 200 && (int)httpResponse.StatusCode < 300)
-                    return Response.Success(httpResponse.StatusCode, httpResponse.Message);
-
-                return httpResponse.Errors.Count > 0
-                    ? Response.Fail(httpResponse.StatusCode, httpResponse.Errors)
-                    : Response.Fail(httpResponse.StatusCode, httpResponse.Message);
-            }
-
-
-            public Dictionary<string, List<string>> Errors { get; set; } = new Dictionary<string, List<string>>();
-
-            public string Message { get; set; }
-
-            public HttpStatusCode StatusCode { get; set; }
-
-            public TModel Result { get; set; }
-
-            public bool IsNotEmptyResponse => Errors?.Count > 0 || !string.IsNullOrWhiteSpace(Message) || Result != default;
-
-            public HttpResponse<TOther> ToOtherModel<TOther>(Func<TModel, TOther> func)
-            {
-                return new HttpResponse<TOther>()
-                {
-                    Errors = Errors,
-                    Message = Message,
-                    Result = func(Result),
-                    StatusCode = StatusCode,
-                };
-            }
+                StatusCode = message.StatusCode,
+                Message = message.ReasonPhrase,
+            };
         }
     }
 }
