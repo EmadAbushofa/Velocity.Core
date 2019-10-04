@@ -153,7 +153,7 @@ namespace Velocity.Core.Extensions
 
                 var response = contentString.DeserializeOrDefault<HttpResponse<TModel>>();
 
-                if (response != null)
+                if (response != null && response.IsNotEmptyResponse)
                 {
                     response.StatusCode = message.StatusCode;
                     return response;
@@ -162,7 +162,7 @@ namespace Velocity.Core.Extensions
 
                 var result = contentString.DeserializeOrDefault<TModel>();
 
-                if (result != null)
+                if (result != null && response.IsNotEmptyResponse)
                     return new HttpResponse<TModel>()
                     {
                         Result = result,
@@ -199,6 +199,8 @@ namespace Velocity.Core.Extensions
             public HttpStatusCode StatusCode { get; set; }
 
             public TModel Result { get; set; }
+
+            public bool IsNotEmptyResponse => Errors.Count > 0 || !string.IsNullOrWhiteSpace(Message) || Result != default;
 
             public HttpResponse<TOther> ToOtherModel<TOther>(Func<TModel, TOther> func)
             {
