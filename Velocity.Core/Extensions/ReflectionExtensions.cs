@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Resources;
 
 namespace Velocity.Core.Extensions
 {
@@ -65,13 +66,19 @@ namespace Velocity.Core.Extensions
 
             var property = type.GetRuntimeProperty(source.ToString());
 
-            if (property != null)
-                return property.GetCustomAttribute<DisplayAttribute>()
-                    ?.Name;
+            var display = property == null
+                ? type.GetRuntimeField(source.ToString())
+                    ?.GetCustomAttribute<DisplayAttribute>()
+                : property.GetCustomAttribute<DisplayAttribute>();
 
-            return type.GetRuntimeField(source.ToString())
-                ?.GetCustomAttribute<DisplayAttribute>()
-                ?.Name;
+            if (display == null || display.Name == null)
+                return null;
+
+            if (display.ResourceType == null)
+                return display.Name;
+
+            return new ResourceManager(display.ResourceType)?.GetString(display.Name)
+                ?? display.Name;
         }
     }
 }
