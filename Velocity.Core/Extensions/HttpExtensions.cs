@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -114,18 +116,30 @@ namespace Velocity.Core.Extensions
         {
             var properties = from p in obj.GetType().GetProperties()
                              where p.GetValue(obj, null) != null
-                             select FirstCharacterToLower(p.Name) + "=" + UrlEncode(p, obj);
+                             select UrlEncode(p, obj);
 
             return string.Join("&", properties.ToArray());
         }
 
         public static string UrlEncode(PropertyInfo p, object obj)
         {
+            var name = FirstCharacterToLower(p.Name);
             var value = p.GetValue(obj, null);
 
-            return value is DateTime dateTime
-                ? HttpUtility.UrlEncode(dateTime.ToDateString())
-                : HttpUtility.UrlEncode(value.ToString());
+            if (value is DateTime dateTime)
+                return name + "=" + HttpUtility.UrlEncode(dateTime.ToDateString());
+
+            if (value is IEnumerable collection)
+            {
+                var results = new List<string>();
+
+                foreach (var item in collection)
+                    results.Add($"{name}={item.ToString()}");
+
+                return string.Join("&", results);
+            }
+
+            return name + "=" + HttpUtility.UrlEncode(value.ToString());
         }
 
         private static string FirstCharacterToLower(string str)
