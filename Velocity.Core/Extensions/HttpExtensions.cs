@@ -129,7 +129,7 @@ namespace Velocity.Core.Extensions
             if (value is DateTime dateTime)
                 return name + "=" + HttpUtility.UrlEncode(dateTime.ToDateString());
 
-            if (value is IEnumerable collection)
+            if (value is IEnumerable collection && !(value is string))
             {
                 var results = new List<string>();
 
