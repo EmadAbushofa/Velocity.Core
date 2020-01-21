@@ -5,13 +5,13 @@ namespace Velocity.Core
 {
     public class HttpResponse
     {
-        public static HttpResponse Success<T>(T data)
+        public static HttpResponse<T> Success<T>(T data)
             => new HttpResponse<T>(data, Success("Success"));
 
-        public static HttpResponse Success<T>(T data, string message)
+        public static HttpResponse<T> Success<T>(T data, string message)
             => new HttpResponse<T>(data, Success(message));
 
-        public static HttpResponse Success<T>(T data, HttpStatusCode statusCode, string message)
+        public static HttpResponse<T> Success<T>(T data, HttpStatusCode statusCode, string message)
             => new HttpResponse<T>(data, Success(statusCode, message));
 
         public static HttpResponse Fail(string message)
