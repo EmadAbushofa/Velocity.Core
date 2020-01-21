@@ -10,15 +10,30 @@ namespace Velocity.Core
     {
         protected readonly Faker Faker = new Faker();
 
-        public virtual TObject Make()
+        public virtual TObject Make(bool createRequested = false)
         {
             try
             {
                 var obj = ObjectFactory.Create<TObject>();
 
-                foreach (var property in GetType().GetRuntimeProperties())
+                foreach (var property in GetType().GetProperties())
                 {
-                    obj.SetValue(property.Name, property.GetValue(this));
+                    var value = property.GetValue(this);
+
+                    var mapKey = property.GetCustomAttribute<MapKeyAttribute>();
+
+                    if (mapKey == null)
+                    {
+                        obj.SetValue(property.Name, value);
+                        continue;
+                    }
+                    else
+                    {
+                        var isSet = mapKey.SetProperty(obj, value);
+
+                        if (!createRequested || !isSet)
+                            obj.SetValue(property.Name, value);
+                    }
                 }
 
                 return obj;
@@ -29,7 +44,7 @@ namespace Velocity.Core
             }
         }
 
-        public virtual List<TObject> MakeRange(int number)
+        public virtual List<TObject> MakeRange(int number, bool createRequested = false)
         {
             var list = new List<TObject>();
             for (var i = 0; i < number; i++)

@@ -17,28 +17,27 @@ namespace Velocity.Core
         public static HttpResponse Fail(string message)
             => new HttpResponse()
             {
-                IsValid = false,
                 Message = message,
+                StatusCode = HttpStatusCode.BadRequest,
             };
 
         public static HttpResponse Fail(Dictionary<string, List<string>> errors)
             => new HttpResponse()
             {
-                IsValid = false,
                 Errors = errors,
+                StatusCode = HttpStatusCode.BadRequest,
             };
 
         public static HttpResponse Success(string message)
             => new HttpResponse()
             {
-                IsValid = true,
                 Message = message,
+                StatusCode = HttpStatusCode.OK
             };
 
         public static HttpResponse Success(HttpStatusCode statusCode, string message)
             => new HttpResponse()
             {
-                IsValid = true,
                 StatusCode = statusCode,
                 Message = message
             };
@@ -46,14 +45,12 @@ namespace Velocity.Core
         public static HttpResponse Fail(HttpStatusCode statusCode)
             => new HttpResponse()
             {
-                IsValid = false,
                 StatusCode = statusCode,
             };
 
         public static HttpResponse Fail(HttpStatusCode statusCode, string message)
             => new HttpResponse()
             {
-                IsValid = false,
                 StatusCode = statusCode,
                 Message = message
             };
@@ -61,7 +58,6 @@ namespace Velocity.Core
         public static HttpResponse Fail(HttpStatusCode statusCode, Dictionary<string, List<string>> errors)
             => new HttpResponse()
             {
-                IsValid = false,
                 StatusCode = statusCode,
                 Errors = errors
             };
@@ -71,15 +67,14 @@ namespace Velocity.Core
         public static HttpResponse Convert<T>(HttpResponse<T> response)
             => new HttpResponse()
             {
-                IsValid = response.IsValid,
                 Message = response.Message,
                 StatusCode = response.StatusCode,
-                Errors = response.Errors
+                Errors = response.Errors,
             };
 
         public Dictionary<string, List<string>> Errors { get; set; } = new Dictionary<string, List<string>>();
         public string Message { get; private set; }
-        public bool IsValid { get; private set; }
+        public bool IsValid => (int)StatusCode >= 200 && (int)StatusCode < 300;
         public HttpStatusCode StatusCode { get; private set; }
     }
 
