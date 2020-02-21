@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Velocity.Core", "Velocity.Core\Velocity.Core.csproj", "{902933FD-BA6C-4CF1-B891-3616D6309D31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velocity.Core.EntityFramework", "Velocity.Core.EntityFramework\Velocity.Core.EntityFramework.csproj", "{8833D4A0-D854-4CAA-B14E-1002D9C78349}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Velocity.Core.EntityFramework", "Velocity.Core.EntityFramework\Velocity.Core.EntityFramework.csproj", "{8833D4A0-D854-4CAA-B14E-1002D9C78349}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Velocity.Core.AspNetCore", "Velocity.Core.AspNetCore\Velocity.Core.AspNetCore.csproj", "{AA68546D-B501-48E8-9A93-75CFB4C67DC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{8833D4A0-D854-4CAA-B14E-1002D9C78349}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8833D4A0-D854-4CAA-B14E-1002D9C78349}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8833D4A0-D854-4CAA-B14E-1002D9C78349}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA68546D-B501-48E8-9A93-75CFB4C67DC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA68546D-B501-48E8-9A93-75CFB4C67DC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA68546D-B501-48E8-9A93-75CFB4C67DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA68546D-B501-48E8-9A93-75CFB4C67DC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
