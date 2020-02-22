@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
 using System;
+using System.Collections;
 using System.Net;
 using Velocity.Core.Extensions;
 
@@ -20,7 +21,6 @@ namespace Velocity.Core.AspNetCore.Services
         {
             var uri = _navigationManager.ToAbsoluteUri(_navigationManager.Uri);
 
-
             var obj = new TModel();
             var properties = typeof(TModel).GetProperties();
             foreach (var property in properties)
@@ -34,13 +34,32 @@ namespace Velocity.Core.AspNetCore.Services
                 if (string.IsNullOrWhiteSpace(str))
                     continue;
 
-                var t = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                if (typeof(IList).IsAssignableFrom(property.PropertyType))
+                {
+                    var list = (IList)Activator.CreateInstance(property.PropertyType);
+                    property.SetValue(obj, list);
 
-                var newValue = t.IsEnum
-                    ? Enum.Parse(t, str)
-                    : Convert.ChangeType(str, t);
+                    foreach (var item in param)
+                    {
+                        var typeOfItem = property.PropertyType.GetGenericArguments()[0];
 
-                property.SetValue(obj, newValue);
+                        var val = typeOfItem.IsEnum
+                            ? Enum.Parse(typeOfItem, item)
+                            : Convert.ChangeType(item, typeOfItem);
+
+                        list.Add(val);
+                    }
+                }
+                else
+                {
+                    var t = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+                    var newValue = t.IsEnum
+                        ? Enum.Parse(t, str)
+                        : Convert.ChangeType(str, t);
+
+                    property.SetValue(obj, newValue);
+                }
             }
 
             return obj;
