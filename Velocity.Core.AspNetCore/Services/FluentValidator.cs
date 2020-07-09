@@ -108,7 +108,8 @@ namespace FluentValidation
         {
             // ATTENTION: DO NOT USE Async Void + ValidateAsync
             // Explanation: Blazor UI will get VERY BUGGY for some reason if you do that. (Field CSS lagged behind validation)
-            var validationResults = Validator.Validate(editContext.Model);
+            var vctx = new ValidationContext<object>(editContext.Model);
+            var validationResults = Validator.Validate(vctx);
 
             messages.Clear();
 
@@ -130,7 +131,7 @@ namespace FluentValidation
         private void ValidateField(EditContext editContext, ValidationMessageStore messages, in FieldIdentifier fieldIdentifier)
         {
             var vselector = new Internal.MemberNameValidatorSelector(new[] { fieldIdentifier.FieldName });
-            var vctx = new ValidationContext(editContext.Model, new Internal.PropertyChain(), vselector);
+            var vctx = new ValidationContext<object>(editContext.Model, new Internal.PropertyChain(), vselector);
             var validationResults = Validator.Validate(vctx);
 
             messages.Clear(fieldIdentifier);
