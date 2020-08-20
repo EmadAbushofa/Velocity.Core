@@ -134,7 +134,7 @@ namespace Velocity.Core.Extensions
                 var results = new List<string>();
 
                 foreach (var item in collection)
-                    results.Add($"{name}={item.ToString()}");
+                    results.Add($"{name}={item}");
 
                 return string.Join("&", results);
             }

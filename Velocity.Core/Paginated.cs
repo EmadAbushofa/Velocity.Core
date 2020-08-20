@@ -9,13 +9,13 @@ namespace Velocity.Core
         [JsonConstructor]
         public Paginated(List<TItem> data, int currentPage, int pageSize, int total)
         {
-            Data = data;
+            Results = data;
             CurrentPage = currentPage;
             PageSize = pageSize;
             Total = total;
         }
 
-        public List<TItem> Data { get; }
+        public List<TItem> Results { get; }
         public int CurrentPage { get; }
         public int PageSize { get; }
         public int Total { get; }
