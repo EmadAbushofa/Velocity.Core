@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Linq;
+using System.Net;
 
 namespace Velocity.Core.AspNetCore.Controllers
 {
@@ -59,6 +61,7 @@ namespace Velocity.Core.AspNetCore.Controllers
                 return base.Conflict(new
                 {
                     Errors = new SerializableError(modelState),
+                    Message = GetMessage(modelState, HttpStatusCode.Conflict)
                 });
 
             return base.Conflict(new
@@ -81,6 +84,7 @@ namespace Velocity.Core.AspNetCore.Controllers
                 return base.BadRequest(new
                 {
                     Errors = new SerializableError(modelState),
+                    Message = GetMessage(modelState, HttpStatusCode.BadRequest)
                 });
 
             return base.BadRequest(new
@@ -103,6 +107,23 @@ namespace Velocity.Core.AspNetCore.Controllers
             {
                 response.Message
             });
+        }
+
+
+        private string GetMessage(ModelStateDictionary modelState, HttpStatusCode code)
+        {
+            var errors = string.Join(
+                "\n",
+                modelState.SelectMany(
+                    m =>
+                        m.Value.Errors.Select(
+                            e =>
+                                e.ErrorMessage
+                            )
+                    )
+            );
+
+            return string.IsNullOrWhiteSpace(errors) ? code.ToString() : errors;
         }
     }
 }
