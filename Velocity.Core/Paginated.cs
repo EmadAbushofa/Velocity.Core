@@ -7,9 +7,9 @@ namespace Velocity.Core
     public struct Paginated<TItem>
     {
         [JsonConstructor]
-        public Paginated(List<TItem> data, int currentPage, int pageSize, int total)
+        public Paginated(List<TItem> results, int currentPage, int pageSize, int total)
         {
-            Results = data;
+            Results = results;
             CurrentPage = currentPage;
             PageSize = pageSize;
             Total = total;
@@ -21,7 +21,10 @@ namespace Velocity.Core
         public int Total { get; }
 
         [JsonIgnore]
-        public int ShowingFrom
+        public int ShowingFrom => ReadShowingFrom;
+
+        [JsonProperty("showingFrom")]
+        private int ReadShowingFrom
         {
             get
             {
@@ -30,10 +33,14 @@ namespace Velocity.Core
 
                 return (CurrentPage - 1) * PageSize + 1;
             }
+            set { }
         }
 
         [JsonIgnore]
-        public int ShowingTo
+        public int ShowingTo => ReadShowingTo;
+
+        [JsonProperty("showingTo")]
+        private int ReadShowingTo
         {
             get
             {
@@ -45,11 +52,15 @@ namespace Velocity.Core
 
                 return CurrentPage * PageSize;
             }
+            set { }
         }
 
 
         [JsonIgnore]
-        public int LastPage
+        public int LastPage => ReadLastPage;
+
+        [JsonProperty("lastPage")]
+        private int ReadLastPage
         {
             get
             {
@@ -60,10 +71,15 @@ namespace Velocity.Core
 
                 return (Total % PageSize) > 0 ? result + 1 : result;
             }
+            set { }
         }
 
         [JsonIgnore]
-        public IEnumerable<int> Pages
+        public IEnumerable<int> Pages => ReadPages;
+
+
+        [JsonProperty("pages")]
+        private IEnumerable<int> ReadPages
         {
             get
             {
@@ -74,6 +90,7 @@ namespace Velocity.Core
                 var lastPage = LastPage;
                 return pages.Where(n => n >= 1 && n <= lastPage).Distinct();
             }
+            set { }
         }
     }
 }
