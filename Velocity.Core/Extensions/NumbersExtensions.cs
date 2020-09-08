@@ -51,14 +51,21 @@ namespace Velocity.Core.Extensions
             return newNumber;
         }
 
-        public static string ToLyd(this decimal value)
+        public static string ToLyd(this decimal value) => ToMoney(value);
+        public static string ToUsd(this decimal value) => ToMoney(value, decimalParts: 2);
+
+        public static string ToMoney(this decimal value, int decimalParts = 3)
         {
-            return value.ToString("##,##0.00");
+            var str = new string('0', decimalParts);
+
+            return value.ToString($"##,##0.{str}").Trim('.');
         }
 
-        public static string ToLyd(this decimal? value)
+        public static string ToMoney(this decimal? value, int decimalParts = 3)
         {
-            return value?.ToString("##,##0.00");
+            var str = new string('0', decimalParts);
+
+            return value?.ToString($"##,##0.{str}").Trim('.');
         }
     }
 }
