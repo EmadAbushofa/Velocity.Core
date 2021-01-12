@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Velocity.Core.Extensions
 {
     public static class NumbersExtensions
     {
-        public static string ToDecimalString(this decimal value) => value.ToString("0.000").Replace(", ", ".");
+        public static string ToDecimalString(this decimal value) => value.ToString("0.000").Replace(", ", ".").Replace("٫", ".");
         public static int ToInt32(this decimal value, IntPart part = IntPart.First)
         {
             var number = value.ToDecimalString();
@@ -24,16 +25,16 @@ namespace Velocity.Core.Extensions
             var second = value.ToInt32(IntPart.Second);
 
             if (second == 0 || second == 250 || second == 500 || second == 750)
-                return decimal.Parse(first + "." + second);
+                return decimal.Parse(first + "." + second, CultureInfo.InvariantCulture);
 
             if (second > 0 && second < 250)
-                return decimal.Parse(first + ".250");
+                return decimal.Parse(first + ".250", CultureInfo.InvariantCulture);
             if (second > 250 && second < 500)
-                return decimal.Parse(first + ".500");
+                return decimal.Parse(first + ".500", CultureInfo.InvariantCulture);
             if (second > 500 && second < 750)
-                return decimal.Parse(first + ".750");
+                return decimal.Parse(first + ".750", CultureInfo.InvariantCulture);
 
-            return decimal.Parse((first + 1).ToString());
+            return decimal.Parse((first + 1).ToString(), CultureInfo.InvariantCulture);
         }
 
         public static string ToYearlyNumber(this long number, DateTime date)
