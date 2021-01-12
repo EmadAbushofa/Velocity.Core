@@ -4,19 +4,17 @@ namespace Velocity.Core.Extensions
 {
     public static class NumbersExtensions
     {
+        public static string ToDecimalString(this decimal value) => value.ToString("0.000").Replace(", ", ".");
         public static int ToInt32(this decimal value, IntPart part = IntPart.First)
         {
-            var number = value.ToString("0.000");
+            var number = value.ToDecimalString();
 
-            switch (part)
+            return part switch
             {
-                case IntPart.First:
-                    return int.Parse(number.Split('.')[0]);
-                case IntPart.Second:
-                    return int.Parse(number.Split('.')[1]);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(part), part, null);
-            }
+                IntPart.First => int.Parse(number.Split('.')[0]),
+                IntPart.Second => int.Parse(number.Split('.')[1]),
+                _ => throw new ArgumentOutOfRangeException(nameof(part), part, null),
+            };
         }
 
         public static decimal ToRoundedDecimal(this decimal value)
