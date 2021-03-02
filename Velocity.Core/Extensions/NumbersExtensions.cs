@@ -5,7 +5,7 @@ namespace Velocity.Core.Extensions
 {
     public static class NumbersExtensions
     {
-        public static string ToDecimalString(this decimal value) => value.ToString("0.000").Replace(", ", ".").Replace("٫", ".");
+        public static string ToDecimalString(this decimal value, string format = "0.000") => value.ToString(format).Replace(", ", ".").Replace("٫", ".");
         public static int ToInt32(this decimal value, IntPart part = IntPart.First)
         {
             var number = value.ToDecimalString();
